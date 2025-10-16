@@ -3,26 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
-  <title>Vídeo Autoplay</title>
+  <title>Vídeo fullscreen</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: black;
+      background-color: black;
       height: 100%;
       overflow: hidden;
     }
+
     .video-container {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(var(--vh, 1vh) * 100);
+      overflow: hidden;
       z-index: 1;
     }
+
     video {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
+
     #soundBtn {
       position: fixed;
       bottom: 30px;
@@ -30,7 +37,7 @@
       transform: translateX(-50%);
       padding: 12px 24px;
       font-size: 16px;
-      background-color: rgba(255, 255, 255, 0.9);
+      background-color: rgba(255, 255, 255, 0.95);
       border: none;
       border-radius: 6px;
       z-index: 2;
@@ -42,7 +49,7 @@
   <div class="video-container">
     <video id="video" autoplay muted playsinline loop>
       <source src="prueba4.mp4" type="video/mp4" />
-      Tu navegador no soporta el vídeo.
+      Tu navegador no soporta video.
     </video>
     <button id="soundBtn">🔊 Activar sonido</button>
   </div>
@@ -51,30 +58,31 @@
     const video = document.getElementById('video');
     const button = document.getElementById('soundBtn');
 
-    // Forzar reproducción al cargar
-    document.addEventListener('DOMContentLoaded', () => {
-      const promise = video.play();
-      if (promise !== undefined) {
-        promise.catch(error => {
-          console.log('Autoplay bloqueado, esperando interacción');
-        });
-      }
-    });
+    // Evita que el botón se tape por la barra de iOS
+    function setVH() {
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    }
 
+    window.addEventListener('resize', setVH);
+    window.addEventListener('orientationchange', setVH);
+    setVH();
+
+    // Botón para activar sonido
     button.addEventListener('click', () => {
       video.muted = false;
       video.play();
       button.style.display = 'none';
     });
 
-    // Ajustar altura real para evitar que se tape en móviles
-    function adjustViewportHeight() {
-      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
-    }
-
-    window.addEventListener('resize', adjustViewportHeight);
-    window.addEventListener('orientationchange', adjustViewportHeight);
-    adjustViewportHeight();
+    // Reintentar autoplay silencioso por si el navegador bloquea
+    document.addEventListener('DOMContentLoaded', () => {
+      const playAttempt = video.play();
+      if (playAttempt !== undefined) {
+        playAttempt.catch(error => {
+          console.log('Autoplay bloqueado, esperando interacción.');
+        });
+      }
+    });
   </script>
 </body>
 </html>
