@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>prueba4</title>
+  <title>Video Autoplay</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
       background-color: black;
-    }
-    .video-container {
-      position: relative;
-      width: 100%;
       height: 100%;
+    }
+    .container {
+      position: relative;
+      height: 100vh;
       overflow: hidden;
     }
     video {
@@ -22,46 +21,48 @@
       height: 100%;
       object-fit: cover;
     }
-    #unmuteBtn {
+    button {
       position: absolute;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 12px 24px;
+      padding: 12px 20px;
       font-size: 16px;
-      background-color: rgba(255, 255, 255, 0.85);
+      background-color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 5px;
       cursor: pointer;
       z-index: 10;
     }
   </style>
 </head>
 <body>
-  <div class="video-container">
-    <video id="myVideo" autoplay muted playsinline loop>
+  <div class="container">
+    <video id="video" autoplay muted playsinline loop>
       <source src="prueba4.mp4" type="video/mp4">
-      Tu navegador no soporta video.
+      Tu navegador no soporta el vídeo.
     </video>
-    <button id="unmuteBtn">🔊 Activar sonido</button>
+    <button id="soundBtn">🔊 Activar sonido</button>
   </div>
 
   <script>
-    const video = document.getElementById('myVideo');
-    const unmuteBtn = document.getElementById('unmuteBtn');
+    const video = document.getElementById('video');
+    const button = document.getElementById('soundBtn');
 
-    unmuteBtn.addEventListener('click', () => {
+    button.addEventListener('click', () => {
       video.muted = false;
       video.play();
-      unmuteBtn.style.display = 'none';
+      button.style.display = 'none';
     });
 
-    // Por si el navegador pausa el autoplay en móviles antiguos
+    // Forzar el play en móviles que bloquean autoplay
     document.addEventListener('DOMContentLoaded', () => {
-      video.play().catch(() => {
-        // Si no puede hacer autoplay directamente, el usuario tendrá que darle manual
-        console.log('Autoplay bloqueado. Se requiere interacción.');
-      });
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(error => {
+          console.log('Autoplay bloqueado por navegador. Se necesita interacción.');
+        });
+      }
     });
   </script>
 </body>
